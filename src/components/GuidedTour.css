@@ -1,0 +1,255 @@
+/* ============================================
+   Guided Tour - Responsive Styles
+   ============================================ */
+
+.guided-tour-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  will-change: transform;
+  transform: translateZ(0); /* Force GPU acceleration */
+}
+
+.guided-tour-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  pointer-events: auto;
+  cursor: pointer;
+  will-change: opacity;
+  transition: opacity 0.2s ease;
+}
+
+.guided-tour-overlay-cutout {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+.guided-tour-highlight-border {
+  position: fixed;
+  border: 4px solid #10B981;
+  border-radius: 12px;
+  pointer-events: none;
+  z-index: 10000;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Optimized shadow - using fewer layers */
+  box-shadow: 
+    0 0 0 4px rgba(34, 197, 94, 0.3),
+    0 0 25px rgba(34, 197, 94, 0.4);
+  animation: tour-pulse 2s ease-in-out infinite;
+}
+
+@keyframes tour-pulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 0 4px rgba(34, 197, 94, 0.3),
+      0 0 25px rgba(34, 197, 94, 0.4);
+    transform: translateZ(0) scale(1);
+  }
+  50% {
+    box-shadow: 
+      0 0 0 5px rgba(34, 197, 94, 0.35),
+      0 0 30px rgba(34, 197, 94, 0.5);
+    transform: translateZ(0) scale(1.01);
+  }
+}
+
+/* Tooltip Styles */
+.guided-tour-tooltip {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  padding: 1.5rem;
+  max-width: 320px;
+  pointer-events: auto;
+  z-index: 10001;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  transition: opacity 0.2s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: subpixel-antialiased;
+}
+
+.dark .guided-tour-tooltip {
+  background: #1f2937;
+  color: white;
+}
+
+.guided-tour-tooltip.mobile {
+  max-width: calc(100vw - 32px);
+  padding: 1.25rem;
+  border-radius: 12px;
+}
+
+.guided-tour-tooltip-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.guided-tour-tooltip-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.dark .guided-tour-tooltip-title {
+  color: white;
+}
+
+.guided-tour-tooltip.mobile .guided-tour-tooltip-title {
+  font-size: 1.125rem;
+}
+
+.guided-tour-close-button {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.25rem;
+  margin-left: 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.guided-tour-close-button:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #111827;
+}
+
+.dark .guided-tour-close-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.guided-tour-tooltip-content {
+  font-size: 0.9375rem;
+  color: #4b5563;
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+}
+
+.dark .guided-tour-tooltip-content {
+  color: #d1d5db;
+}
+
+.guided-tour-tooltip.mobile .guided-tour-tooltip-content {
+  font-size: 0.875rem;
+  margin-bottom: 1.25rem;
+}
+
+.guided-tour-tooltip-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.guided-tour-progress-text {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.dark .guided-tour-progress-text {
+  color: #9ca3af;
+}
+
+.guided-tour-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.guided-tour-button {
+  pointer-events: auto !important;
+  white-space: nowrap;
+}
+
+.guided-tour-tooltip.mobile .guided-tour-button {
+  min-width: 100px;
+  font-size: 0.9375rem;
+  padding: 0.625rem 1rem;
+}
+
+/* Progress Bar */
+.guided-tour-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.dark .guided-tour-progress-bar {
+  background: #374151;
+}
+
+.guided-tour-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10B981 0%, #22c55e 100%);
+  border-radius: 2px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: width;
+  transform: translateZ(0);
+}
+
+/* Tour Highlight Class (applied to target elements) */
+.tour-highlight {
+  position: relative;
+  z-index: 1000 !important;
+  transition: outline 0.2s ease, outline-offset 0.2s ease, border-radius 0.2s ease;
+  will-change: outline, outline-offset;
+  transform: translateZ(0);
+}
+
+/* Scroll margin for fixed navbar */
+[data-tour] {
+  scroll-margin-top: 100px;
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 767px) {
+  .guided-tour-tooltip {
+    max-width: calc(100vw - 24px);
+    margin: 0 12px;
+  }
+
+  .guided-tour-highlight-border {
+    border-width: 3px;
+    border-radius: 8px;
+  }
+
+  [data-tour] {
+    scroll-margin-top: 90px;
+  }
+}
+
+/* Ensure tooltip is always visible */
+@media (max-height: 600px) {
+  .guided-tour-tooltip {
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+  }
+}
+
