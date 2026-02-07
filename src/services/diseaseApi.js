@@ -1,5 +1,6 @@
 // services/diseaseApi.js
-const BASE_URL = `https://farmer-assist-backend.onrender.com/api`
+const BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api";
 
 export const diseaseApi = {
   async getStatus() {

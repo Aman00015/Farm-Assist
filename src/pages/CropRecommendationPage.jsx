@@ -24,6 +24,8 @@ const CropRecommendationPage = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [availableStates, setAvailableStates] = useState([]);
+  const apiBaseUrl =
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api";
 
   // Fetch available states on component mount
   useEffect(() => {
@@ -32,10 +34,7 @@ const CropRecommendationPage = () => {
 
   const fetchAvailableStates = async () => {
     try {
-      const baseUrl = `https://farmer-assist-backend.onrender.com/api`;
-      const response = await fetch(
-        `${baseUrl}/available-states`
-      );
+      const response = await fetch(`${apiBaseUrl}/available-states`);
       const data = await response.json();
       if (data.states) {
         setAvailableStates(data.states);
@@ -53,44 +52,43 @@ const CropRecommendationPage = () => {
     }
   };
 
-// In your CropRecommendationPage.js, update the handleSubmit function:
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-
-  try {
-      const baseUrl = `https://farmer-assist-backend.onrender.com/api`;
-    const response = await fetch(
-      `${baseUrl}/recommend-crops`,
-      {
+    try {
+      const response = await fetch(`${apiBaseUrl}/recommend-crops`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Add icon to each recommendation
+        const recommendationsWithIcons = result.recommendations.map((crop) => ({
+          ...crop,
+          icon: getCropIcon(crop.name),
+          suitabilityDisplay:
+            crop.suitability_percentage ?? crop.suitability ?? null,
+          expectedYieldDisplay:
+            crop.expected_yield_range ?? crop.expectedYield ?? null,
+          tipsDisplay: crop.cultivation_tips ?? crop.tips ?? null,
+        }));
+        setRecommendations(recommendationsWithIcons);
+      } else {
+        alert(result.error || "Error getting recommendations");
       }
-    );
-
-    const result = await response.json();
-
-    if (result.success) {
-      // Add icon to each recommendation
-      const recommendationsWithIcons = result.recommendations.map(crop => ({
-        ...crop,
-        icon: getCropIcon(crop.name)
-      }));
-      setRecommendations(recommendationsWithIcons);
-    } else {
-      alert(result.error || "Error getting recommendations");
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Failed to connect to server");
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error("Error:", error);
-    alert("Failed to connect to server");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const getCropIcon = (cropName) => {
     const icons = {
@@ -198,7 +196,7 @@ const handleSubmit = async (e) => {
               </div>
 
               <div>
-                <label className="flex items-center text-lg font-medium text-gray-900 dark:text-white mb-3">
+                <label className="flex items-center text-lg font-medium text-gray-900 mb-3 dark:text-white">
                   <Droplets className="mr-2 h-5 w-5 text-green-600" />
                   Pesticide (litres)
                 </label>
@@ -289,9 +287,11 @@ const handleSubmit = async (e) => {
                               {crop.name}
                             </h4>
                             <div className="flex items-center space-x-2">
-                              <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                                {crop.suitability}% {t("suitable")}
-                              </div>
+                              {crop.suitabilityDisplay !== null && (
+                                <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                                  {crop.suitabilityDisplay}% {t("suitable")}
+                                </div>
+                              )}
                               {crop.confidence && (
                                 <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
                                   Confidence:{" "}
@@ -302,10 +302,10 @@ const handleSubmit = async (e) => {
                           </div>
                           <p className="text-gray-600 mb-2 dark:text-white">
                             <strong>{t("expectedYield")}:</strong>{" "}
-                            {crop.expectedYield}
+                            {crop.expectedYieldDisplay}
                           </p>
                           <p className="text-gray-600 text-sm dark:text-white">
-                            <strong>Tips:</strong> {crop.tips}
+                            <strong>Tips:</strong> {crop.tipsDisplay}
                           </p>
                         </div>
                       </div>

@@ -17,6 +17,8 @@ const DiseaseDetection = () => {
   const [error, setError] = useState("");
   const [modelStatus, setModelStatus] = useState(false);
   const fileInputRef = useRef(null);
+  const apiBaseUrl =
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api";
 
   // Check model status on component mount
   React.useEffect(() => {
@@ -25,10 +27,7 @@ const DiseaseDetection = () => {
 
   const checkModelStatus = async () => {
     try {
-      const baseUrl = `https://farmer-assist-backend.onrender.com/api`;
-      const response = await fetch(
-        `${baseUrl}/disease-detection/status`
-      );
+      const response = await fetch(`${apiBaseUrl}/disease-detection/status`);
       const data = await response.json();
       setModelStatus(data.is_loaded);
     } catch (err) {
@@ -105,14 +104,10 @@ const DiseaseDetection = () => {
       const formData = new FormData();
       formData.append("image", selectedFile);
 
-      const baseUrl = `https://farmer-assist-backend.onrender.com/api`;
-      const response = await fetch(
-        `${baseUrl}/disease-detection/predict`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const response = await fetch(`${apiBaseUrl}/disease-detection/predict`, {
+        method: "POST",
+        body: formData,
+      });
 
       const data = await response.json();
 
@@ -251,10 +246,15 @@ const DiseaseDetection = () => {
             </h2>
 
             {error && (
-              <div className="glass-error rounded-xl p-4 mb-4">
-                <div className="flex items-center text-red-700">
-                  <AlertCircle className="h-5 w-5 mr-2" />
-                  {error}
+              <div className="glass-error rounded-xl p-4 mb-4 border-l-4 border-red-500">
+                <div className="flex items-start">
+                  <AlertCircle className="h-5 w-5 mr-2 mt-0.5 text-red-600 flex-shrink-0" />
+                  <div>
+                    <p className="text-red-700 font-medium">{error}</p>
+                    {result?.details && (
+                      <p className="text-red-600 text-sm mt-1">{result.details}</p>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -310,7 +310,9 @@ const DiseaseDetection = () => {
                     Treatment Recommendations
                   </h4>
                   <ul className="space-y-2">
-                    {result.treatment.map((treatment, index) => (
+                    {(result.treatment ||
+                      result.treatment_recommendations?.immediate_treatment ||
+                      []).map((treatment, index) => (
                       <li key={index} className="flex items-start">
                         <span className="glass-bullet mt-2 mr-3 flex-shrink-0"></span>
                         <span className="text-gray-700 dark:text-gray-300">{treatment}</span>
@@ -318,6 +320,28 @@ const DiseaseDetection = () => {
                     ))}
                   </ul>
                 </div>
+
+                {/* Alternative Predictions */}
+                {result.alternative_predictions && result.alternative_predictions.length > 0 && (
+                  <div className="glass-container rounded-xl p-4 border border-blue-200/30 dark:border-blue-900/30">
+                    <h4 className="text-lg font-medium text-gray-800 dark:text-white mb-3">
+                      Other Possibilities
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      If the result doesn't match your plant, these could be alternatives:
+                    </p>
+                    <div className="space-y-2">
+                      {result.alternative_predictions.map((pred, index) => (
+                        <div key={index} className="flex items-center justify-between p-2 bg-blue-50/50 dark:bg-blue-900/20 rounded-lg">
+                          <span className="text-gray-700 dark:text-gray-300">{pred.class}</span>
+                          <span className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                            {(pred.confidence * 100).toFixed(1)}%
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <button
                   onClick={handleNewImage}
